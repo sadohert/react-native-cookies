@@ -134,7 +134,8 @@ RCT_EXPORT_METHOD(
                 [cookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *allCookies) {
                     NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
                     for(NSHTTPCookie *currentCookie in allCookies) {
-                        if([currentCookie.domain containsString:topLevelDomain]) {
+                        NSString *domainWithDot = [NSString stringWithFormat:@".%@", currentCookie.domain];
+                        if([currentCookie.domain containsString:topLevelDomain] || [domainWithDot containsString:topLevelDomain]) {
                             [cookies setObject:currentCookie.value forKey:currentCookie.name];
                         }
                     }
@@ -152,7 +153,10 @@ RCT_EXPORT_METHOD(
             [d setObject:c.name forKey:@"name"];
             [d setObject:c.domain forKey:@"domain"];
             [d setObject:c.path forKey:@"path"];
-            [d setObject:[self.formatter stringFromDate:c.expiresDate] forKey:@"expiresDate"];
+            NSString *expires = [self.formatter stringFromDate:c.expiresDate];
+            if (expires != nil) {
+                [d setObject:expires forKey:@"expiresDate"];
+            }
             [cookies setObject:d forKey:c.name];
         }
         resolve(cookies);
@@ -170,16 +174,7 @@ RCT_EXPORT_METHOD(
                 WKHTTPCookieStore *cookieStore = [[WKWebsiteDataStore defaultDataStore] httpCookieStore];
                 [cookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *allCookies) {
                     for(NSHTTPCookie *currentCookie in allCookies) {
-                        // Uses the NSHTTPCookie directly has no effect, nor deleted the cookie nor thrown an error.
-                        // Create a new cookie with the given values and delete this one do the work.
-                        NSMutableDictionary<NSHTTPCookiePropertyKey, id> *cookieData =  [NSMutableDictionary dictionary];
-                        [cookieData setValue:currentCookie.name forKey:NSHTTPCookieName];
-                        [cookieData setValue:currentCookie.value forKey:NSHTTPCookieValue];
-                        [cookieData setValue:currentCookie.domain forKey:NSHTTPCookieDomain];
-                        [cookieData setValue:currentCookie.path forKey:NSHTTPCookiePath];
-
-                        NSHTTPCookie *newCookie = [NSHTTPCookie cookieWithProperties:cookieData];
-                        [cookieStore deleteCookie:newCookie completionHandler:^{}];
+                        [cookieStore deleteCookie:currentCookie completionHandler:^{}];
                     }
                     resolve(nil);
                 }];
@@ -240,7 +235,10 @@ RCT_EXPORT_METHOD(getAll:(RCTPromiseResolveBlock)resolve
         [d setObject:c.name forKey:@"name"];
         [d setObject:c.domain forKey:@"domain"];
         [d setObject:c.path forKey:@"path"];
-        [d setObject:[self.formatter stringFromDate:c.expiresDate] forKey:@"expiresDate"];
+        NSString *expires = [self.formatter stringFromDate:c.expiresDate];
+        if (expires != nil) {
+            [d setObject:expires forKey:@"expiresDate"];
+        }
         [cookies setObject:d forKey:c.name];
     }
 }
