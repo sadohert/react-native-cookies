@@ -168,6 +168,8 @@ RCT_EXPORT_METHOD(
     resolver:(RCTPromiseResolveBlock)resolve
     rejecter:(RCTPromiseRejectBlock)reject)
 {
+    [self deleteBinaryCookiesAndWebsiteData];
+
     if (useWebKit) {
         if (@available(iOS 11.0, *)) {
             dispatch_async(dispatch_get_main_queue(), ^(){
@@ -243,6 +245,17 @@ RCT_EXPORT_METHOD(
     [cookieData setObject:cookie.domain forKey:@"domain"];
     [cookieData setObject:cookie.path forKey:@"path"];
     return cookieData;
+}
+
+-(void) deleteBinaryCookiesAndWebsiteData {
+    NSString *libraryPath = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES)[0];
+    NSString *cookiesPath = [libraryPath stringByAppendingString:@"/Cookies/Cookies.binarycookies"];
+    NSString *dataPath = [libraryPath stringByAppendingString:@"/WebKit/WebsiteData"];
+    
+    NSError *error;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtPath:cookiesPath error:&error];
+    [fileManager removeItemAtPath:dataPath error:&error];
 }
 
 @end
