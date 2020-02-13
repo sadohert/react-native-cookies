@@ -168,6 +168,8 @@ RCT_EXPORT_METHOD(
     resolver:(RCTPromiseResolveBlock)resolve
     rejecter:(RCTPromiseRejectBlock)reject)
 {
+    [self deleteBinaryCookiesAndWebsiteData];
+
     if (useWebKit) {
         if (@available(iOS 11.0, *)) {
             dispatch_async(dispatch_get_main_queue(), ^(){
@@ -225,24 +227,6 @@ RCT_EXPORT_METHOD(
     }
 }
 
-RCT_EXPORT_METHOD(getAll:(RCTPromiseResolveBlock)resolve
-    rejecter:(RCTPromiseRejectBlock)reject) {
-    NSHTTPCookieStorage *cookieStorage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
-    for (NSHTTPCookie *c in cookieStorage.cookies) {
-        NSMutableDictionary *d = [NSMutableDictionary dictionary];
-        [d setObject:c.value forKey:@"value"];
-        [d setObject:c.name forKey:@"name"];
-        [d setObject:c.domain forKey:@"domain"];
-        [d setObject:c.path forKey:@"path"];
-        NSString *expires = [self.formatter stringFromDate:c.expiresDate];
-        if (expires != nil) {
-            [d setObject:expires forKey:@"expiresDate"];
-        }
-        [cookies setObject:d forKey:c.name];
-    }
-}
-
 -(NSDictionary *)createCookieList:(NSArray<NSHTTPCookie *>*)cookies
 {
     NSMutableDictionary *cookieList = [NSMutableDictionary dictionary];
@@ -261,6 +245,17 @@ RCT_EXPORT_METHOD(getAll:(RCTPromiseResolveBlock)resolve
     [cookieData setObject:cookie.domain forKey:@"domain"];
     [cookieData setObject:cookie.path forKey:@"path"];
     return cookieData;
+}
+
+-(void) deleteBinaryCookiesAndWebsiteData {
+    NSString *libraryPath = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES)[0];
+    NSString *cookiesPath = [libraryPath stringByAppendingString:@"/Cookies/Cookies.binarycookies"];
+    NSString *dataPath = [libraryPath stringByAppendingString:@"/WebKit/WebsiteData"];
+    
+    NSError *error;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    [fileManager removeItemAtPath:cookiesPath error:&error];
+    [fileManager removeItemAtPath:dataPath error:&error];
 }
 
 @end
