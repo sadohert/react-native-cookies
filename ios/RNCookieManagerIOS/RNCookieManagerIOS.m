@@ -137,7 +137,7 @@ RCT_EXPORT_METHOD(
                         NSString *domainWithDot = [NSString stringWithFormat:@".%@", currentCookie.domain];
                         if([currentCookie.domain containsString:topLevelDomain] || [domainWithDot containsString:topLevelDomain]) {
                             [cookies setObject:currentCookie.value forKey:currentCookie.name];
-                            NSLog(@"BOFA_Debug: CookieManager.get (Webkit) value/name: %@ / %@ ", currentCookie.value, currentCookie.name);
+                            NSLog(@"BOFA_Debug: CookieManager.get (Webkit) value/name/url/domain: %@ / %@ ", currentCookie.value, currentCookie.name);
                         }
                     }
                     resolve(cookies);
