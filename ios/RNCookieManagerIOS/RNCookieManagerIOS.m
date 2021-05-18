@@ -137,6 +137,7 @@ RCT_EXPORT_METHOD(
                         NSString *domainWithDot = [NSString stringWithFormat:@".%@", currentCookie.domain];
                         if([currentCookie.domain containsString:topLevelDomain] || [domainWithDot containsString:topLevelDomain]) {
                             [cookies setObject:currentCookie.value forKey:currentCookie.name];
+                            NSLog(@"BOFA_Debug: CookieManager.get (Webkit) value/name: %@ / %@ ", currentCookie.value, currentCookie.name);
                         }
                     }
                     resolve(cookies);
@@ -153,6 +154,7 @@ RCT_EXPORT_METHOD(
             [d setObject:c.name forKey:@"name"];
             [d setObject:c.domain forKey:@"domain"];
             [d setObject:c.path forKey:@"path"];
+            NSLog(@"BOFA_Debug: CookieManager.get (non-Webkit) value/name/domain/path: %@ / %@ / %@ / %@", c.value, c.name, c.domain, c.path);
             NSString *expires = [self.formatter stringFromDate:c.expiresDate];
             if (expires != nil) {
                 [d setObject:expires forKey:@"expiresDate"];
