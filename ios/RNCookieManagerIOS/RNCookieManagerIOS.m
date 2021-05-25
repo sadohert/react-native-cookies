@@ -167,7 +167,7 @@ RCT_EXPORT_METHOD(
             }
             [cookies2 setObject:d forKey:c.name];
         }
-        resolve(cookies2);
+        resolve(cookies);
     // }
 }
 
