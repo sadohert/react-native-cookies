@@ -126,6 +126,7 @@ RCT_EXPORT_METHOD(
     rejecter:(RCTPromiseRejectBlock)reject)
 {
     // if (useWebKit) {
+        NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
         NSLog(@"BOFA_Debug: CookieManager.get START WKHTTPCookieStore");
         if (@available(iOS 11.0, *)) {
             dispatch_async(dispatch_get_main_queue(), ^(){
@@ -133,7 +134,6 @@ RCT_EXPORT_METHOD(
 
                 WKHTTPCookieStore *cookieStore = [[WKWebsiteDataStore defaultDataStore] httpCookieStore];
                 [cookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *allCookies) {
-                    NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
                     NSUInteger *wkWebViewCookieCount = [cookies count];
                     NSLog(@"BOFA_Debug: CookieManager.get START WKHTTPCookieStore count %d", wkWebViewCookieCount);
                     for(NSHTTPCookie *currentCookie in allCookies) {
@@ -167,7 +167,7 @@ RCT_EXPORT_METHOD(
             }
             [cookies2 setObject:d forKey:c.name];
         }
-        resolve(cookies2);
+        resolve(cookies);
     // }
 }
 
