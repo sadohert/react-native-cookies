@@ -126,6 +126,7 @@ RCT_EXPORT_METHOD(
     rejecter:(RCTPromiseRejectBlock)reject)
 {
     // if (useWebKit) {
+        NSLog(@"BOFA_Debug: CookieManager.get START WKHTTPCookieStore");
         if (@available(iOS 11.0, *)) {
             dispatch_async(dispatch_get_main_queue(), ^(){
                 NSString *topLevelDomain = [self getDomainName:url];
@@ -133,6 +134,8 @@ RCT_EXPORT_METHOD(
                 WKHTTPCookieStore *cookieStore = [[WKWebsiteDataStore defaultDataStore] httpCookieStore];
                 [cookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *allCookies) {
                     NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
+                    NSUInteger *wkWebViewCookieCount = [cookies count];
+                    NSLog(@"BOFA_Debug: CookieManager.get START WKHTTPCookieStore count %d", wkWebViewCookieCount);
                     for(NSHTTPCookie *currentCookie in allCookies) {
                         NSString *domainWithDot = [NSString stringWithFormat:@".%@", currentCookie.domain];
                         if([currentCookie.domain containsString:topLevelDomain] || [domainWithDot containsString:topLevelDomain]) {
@@ -147,8 +150,11 @@ RCT_EXPORT_METHOD(
             reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
         }
     // } else {
-        NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
-        for (NSHTTPCookie *c in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url]) {
+        NSMutableDictionary *cookies2 = [NSMutableDictionary dictionary];
+        NSArray<NSHTTPCookie *> *cookieArray = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url];
+        NSUInteger *nsCookieCount = [cookieArray count];
+        NSLog(@"BOFA_Debug: CookieManager.get START NSCookieStorage count %d", nsCookieCount);
+        for (NSHTTPCookie *c in cookieArray) {
             NSMutableDictionary *d = [NSMutableDictionary dictionary];
             [d setObject:c.value forKey:@"value"];
             [d setObject:c.name forKey:@"name"];
@@ -159,9 +165,9 @@ RCT_EXPORT_METHOD(
             if (expires != nil) {
                 [d setObject:expires forKey:@"expiresDate"];
             }
-            [cookies setObject:d forKey:c.name];
+            [cookies2 setObject:d forKey:c.name];
         }
-        resolve(cookies);
+        resolve(cookies2);
     // }
 }
 
