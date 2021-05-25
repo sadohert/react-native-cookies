@@ -140,7 +140,7 @@ RCT_EXPORT_METHOD(
                             NSLog(@"BOFA_Debug: CookieManager.get (Webkit) value/name: %@ / %@ ", currentCookie.value, currentCookie.name);
                         }
                     }
-                    resolve(cookies);
+                    // resolve(cookies);
                 }];
             });
         } else {
