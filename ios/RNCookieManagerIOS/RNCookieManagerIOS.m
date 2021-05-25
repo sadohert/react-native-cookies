@@ -125,7 +125,7 @@ RCT_EXPORT_METHOD(
     resolver:(RCTPromiseResolveBlock)resolve
     rejecter:(RCTPromiseRejectBlock)reject)
 {
-    if (useWebKit) {
+    // if (useWebKit) {
         if (@available(iOS 11.0, *)) {
             dispatch_async(dispatch_get_main_queue(), ^(){
                 NSString *topLevelDomain = [self getDomainName:url];
@@ -146,7 +146,7 @@ RCT_EXPORT_METHOD(
         } else {
             reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
         }
-    } else {
+    // } else {
         NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
         for (NSHTTPCookie *c in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url]) {
             NSMutableDictionary *d = [NSMutableDictionary dictionary];
@@ -162,7 +162,7 @@ RCT_EXPORT_METHOD(
             [cookies setObject:d forKey:c.name];
         }
         resolve(cookies);
-    }
+    // }
 }
 
 RCT_EXPORT_METHOD(
