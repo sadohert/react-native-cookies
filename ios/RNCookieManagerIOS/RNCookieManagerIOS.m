@@ -132,10 +132,21 @@ RCT_EXPORT_METHOD(
 
                 WKHTTPCookieStore *cookieStore = [[WKWebsiteDataStore defaultDataStore] httpCookieStore];
                 [cookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *allCookies) {
-                    //////////////////////////////////
-                    NSLog(@"BOFA_Debug VH: WK= %@", allCookies); //!!!!!!!!! We print cookies obtained from WKHTTPCookieStore
-                    NSLog(@"BOFA_Debug VH: NS= %@", [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies]); //!!!!!!!!! We print NSHTTP cookies
-                    //////////////////////////////////
+                    // Print WK
+                    NSLog(@"BOFA_Debug:VH:WK size:(%lu)", (unsigned long)[allCookies count]);
+                    int i = 0;
+                    for (NSHTTPCookie *currentCookie in allCookies) {
+                        i++;
+                        NSLog(@"BOFA_Debug:VH:WK:(%d) %@ / %@ ", i, currentCookie.value, currentCookie.name);
+                    }
+                    // Print NS
+                    NSArray<NSHTTPCookie *> *nsCookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
+                    NSLog(@"BOFA_Debug:VH:NS size:(%lu)", (unsigned long)[nsCookies count]);
+                    i = 0;
+                    for (NSHTTPCookie *currentCookie in nsCookies) {
+                            i++;
+                            NSLog(@"BOFA_Debug:VH:NS:(%d) %@ / %@ ", i, currentCookie.value, currentCookie.name);
+                    }
                     NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
                     for(NSHTTPCookie *currentCookie in allCookies) {
                         NSString *domainWithDot = [NSString stringWithFormat:@".%@", currentCookie.domain];
