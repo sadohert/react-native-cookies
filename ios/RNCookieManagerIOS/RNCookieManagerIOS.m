@@ -127,7 +127,30 @@ RCT_EXPORT_METHOD(
 {
     if (useWebKit) {
         if (@available(iOS 11.0, *)) {
+            // FIRST OF ALL CHECK THAT WE HAVE SOMETHING HERE BEFORE DISPATCH CALL ON MAIN THREAD
+            {
+                NSArray<NSHTTPCookie *> *nsCookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
+                NSLog(@"BOFA_Debug:VH:NS:V1 size:(%lu)", (unsigned long)[nsCookies count]);
+                int i = 0;
+                for (NSHTTPCookie *currentCookie in nsCookies) {
+                        i++;
+                        NSLog(@"BOFA_Debug:VH:NS:V1(%d) %@ / %@ ", i, currentCookie.value, currentCookie.name);
+                }
+            }
+                //-------------------------------------------------------------------------------------------
             dispatch_async(dispatch_get_main_queue(), ^(){
+                // SECOND CHECK THAT WE HAVE SOMETHING HERE BEFORE ASK WKWebView, BECAUSE FINAL RESPONSE WILL BE IN BLOCK
+                {
+                    NSArray<NSHTTPCookie *> *nsCookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
+                    NSLog(@"BOFA_Debug:VH:NS:V2 size:(%lu)", (unsigned long)[nsCookies count]);
+                    int i = 0;
+                    for (NSHTTPCookie *currentCookie in nsCookies) {
+                            i++;
+                            NSLog(@"BOFA_Debug:VH:NS:V2: (%d) %@ / %@ ", i, currentCookie.value, currentCookie.name);
+                    }
+                }
+                //-------------------------------------------------------------------------------------------
+
                 NSString *topLevelDomain = [self getDomainName:url];
 
                 WKHTTPCookieStore *cookieStore = [[WKWebsiteDataStore defaultDataStore] httpCookieStore];
