@@ -146,7 +146,7 @@ RCT_EXPORT_METHOD(
                     }
                     {
                         NSMutableDictionary *cookies2 = [NSMutableDictionary dictionary];
-                        for (NSHTTPCookie *c in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url]) {
+                        for (NSHTTPCookie *c in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies]) {
                             NSMutableDictionary *d = [NSMutableDictionary dictionary];
                             [d setObject:c.value forKey:@"value"];
                             [d setObject:c.name forKey:@"name"];
