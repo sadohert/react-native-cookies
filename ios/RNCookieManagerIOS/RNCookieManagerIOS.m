@@ -125,11 +125,34 @@ RCT_EXPORT_METHOD(
     resolver:(RCTPromiseResolveBlock)resolve
     rejecter:(RCTPromiseRejectBlock)reject)
 {
-        NSMutableDictionary *cookies2 = [NSMutableDictionary dictionary];
-        NSArray<NSHTTPCookie *> *cookieArray = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url];
-        NSUInteger *nsCookieCount = [cookieArray count];
-        NSLog(@"BOFA_Debug: CookieManager.get START NSCookieStorage count %d", nsCookieCount);
-        for (NSHTTPCookie *c in cookieArray) {
+    if (useWebKit) {
+        if (@available(iOS 11.0, *)) {
+            dispatch_async(dispatch_get_main_queue(), ^(){
+                NSString *topLevelDomain = [self getDomainName:url];
+
+                WKHTTPCookieStore *cookieStore = [[WKWebsiteDataStore defaultDataStore] httpCookieStore];
+                [cookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *allCookies) {
+                    //////////////////////////////////
+                    NSLog(@"BOFA_Debug VH: WK= %@", allCookies); //!!!!!!!!! We print cookies obtained from WKHTTPCookieStore
+                    NSLog(@"BOFA_Debug VH: NS= %@", [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies]); //!!!!!!!!! We print NSHTTP cookies
+                    //////////////////////////////////
+                    NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
+                    for(NSHTTPCookie *currentCookie in allCookies) {
+                        NSString *domainWithDot = [NSString stringWithFormat:@".%@", currentCookie.domain];
+                        if([currentCookie.domain containsString:topLevelDomain] || [domainWithDot containsString:topLevelDomain]) {
+                            [cookies setObject:currentCookie.value forKey:currentCookie.name];
+                            NSLog(@"BOFA_Debug: CookieManager.get (Webkit) value/name: %@ / %@ ", currentCookie.value, currentCookie.name);
+                        }
+                    }
+                    resolve(cookies);
+                }];
+            });
+        } else {
+            reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
+        }
+    } else {
+        NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
+        for (NSHTTPCookie *c in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url]) {
             NSMutableDictionary *d = [NSMutableDictionary dictionary];
             [d setObject:c.value forKey:@"value"];
             [d setObject:c.name forKey:@"name"];
@@ -140,35 +163,10 @@ RCT_EXPORT_METHOD(
             if (expires != nil) {
                 [d setObject:expires forKey:@"expiresDate"];
             }
-            [cookies2 setObject:d forKey:c.name];
+            [cookies setObject:d forKey:c.name];
         }
-    // if (useWebKit) {
-        NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
-        NSLog(@"BOFA_Debug: CookieManager.get START WKHTTPCookieStore");
-        if (@available(iOS 11.0, *)) {
-            dispatch_async(dispatch_get_main_queue(), ^(){
-                NSString *topLevelDomain = [self getDomainName:url];
-
-                WKHTTPCookieStore *cookieStore = [[WKWebsiteDataStore defaultDataStore] httpCookieStore];
-                [cookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *allCookies) {
-                    NSUInteger *wkWebViewCookieCount = [cookies count];
-                    NSLog(@"BOFA_Debug: CookieManager.get START WKHTTPCookieStore count %d", wkWebViewCookieCount);
-                    for(NSHTTPCookie *currentCookie in allCookies) {
-                        NSString *domainWithDot = [NSString stringWithFormat:@".%@", currentCookie.domain];
-                        if([currentCookie.domain containsString:topLevelDomain] || [domainWithDot containsString:topLevelDomain]) {
-                            [cookies setObject:currentCookie.value forKey:currentCookie.name];
-                            NSLog(@"BOFA_Debug: CookieManager.get (Webkit) value/name: %@ / %@ ", currentCookie.value, currentCookie.name);
-                        }
-                    }
-                    // resolve(cookies);
-                }];
-            });
-        } else {
-            reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
-        }
-    // } else {
         resolve(cookies);
-    // }
+    }
 }
 
 RCT_EXPORT_METHOD(
