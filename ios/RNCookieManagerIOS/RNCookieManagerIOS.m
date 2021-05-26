@@ -144,6 +144,22 @@ RCT_EXPORT_METHOD(
                             NSLog(@"BOFA_Debug: CookieManager.get (Webkit) value/name: %@ / %@ ", currentCookie.value, currentCookie.name);
                         }
                     }
+                    {
+                        NSMutableDictionary *cookies2 = [NSMutableDictionary dictionary];
+                        for (NSHTTPCookie *c in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url]) {
+                            NSMutableDictionary *d = [NSMutableDictionary dictionary];
+                            [d setObject:c.value forKey:@"value"];
+                            [d setObject:c.name forKey:@"name"];
+                            [d setObject:c.domain forKey:@"domain"];
+                            [d setObject:c.path forKey:@"path"];
+                            NSLog(@"BOFA_Debug: CookieManager.get (non-Webkit 2) value/name/domain/path: %@ / %@ ", c.value, c.name);
+                            NSString *expires = [self.formatter stringFromDate:c.expiresDate];
+                            if (expires != nil) {
+                                [d setObject:expires forKey:@"expiresDate"];
+                            }
+                            [cookies2 setObject:d forKey:c.name];
+                        }
+                    }
                     resolve(cookies);
                 }];
             });
