@@ -125,6 +125,23 @@ RCT_EXPORT_METHOD(
     resolver:(RCTPromiseResolveBlock)resolve
     rejecter:(RCTPromiseRejectBlock)reject)
 {
+        NSMutableDictionary *cookies2 = [NSMutableDictionary dictionary];
+        NSArray<NSHTTPCookie *> *cookieArray = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url];
+        NSUInteger *nsCookieCount = [cookieArray count];
+        NSLog(@"BOFA_Debug: CookieManager.get START NSCookieStorage count %d", nsCookieCount);
+        for (NSHTTPCookie *c in cookieArray) {
+            NSMutableDictionary *d = [NSMutableDictionary dictionary];
+            [d setObject:c.value forKey:@"value"];
+            [d setObject:c.name forKey:@"name"];
+            [d setObject:c.domain forKey:@"domain"];
+            [d setObject:c.path forKey:@"path"];
+            NSLog(@"BOFA_Debug: CookieManager.get (non-Webkit) value/name/domain/path: %@ / %@ / %@ / %@", c.value, c.name, c.domain, c.path);
+            NSString *expires = [self.formatter stringFromDate:c.expiresDate];
+            if (expires != nil) {
+                [d setObject:expires forKey:@"expiresDate"];
+            }
+            [cookies2 setObject:d forKey:c.name];
+        }
     // if (useWebKit) {
         NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
         NSLog(@"BOFA_Debug: CookieManager.get START WKHTTPCookieStore");
@@ -150,23 +167,6 @@ RCT_EXPORT_METHOD(
             reject(@"", NOT_AVAILABLE_ERROR_MESSAGE, nil);
         }
     // } else {
-        NSMutableDictionary *cookies2 = [NSMutableDictionary dictionary];
-        NSArray<NSHTTPCookie *> *cookieArray = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url];
-        NSUInteger *nsCookieCount = [cookieArray count];
-        NSLog(@"BOFA_Debug: CookieManager.get START NSCookieStorage count %d", nsCookieCount);
-        for (NSHTTPCookie *c in cookieArray) {
-            NSMutableDictionary *d = [NSMutableDictionary dictionary];
-            [d setObject:c.value forKey:@"value"];
-            [d setObject:c.name forKey:@"name"];
-            [d setObject:c.domain forKey:@"domain"];
-            [d setObject:c.path forKey:@"path"];
-            NSLog(@"BOFA_Debug: CookieManager.get (non-Webkit) value/name/domain/path: %@ / %@ / %@ / %@", c.value, c.name, c.domain, c.path);
-            NSString *expires = [self.formatter stringFromDate:c.expiresDate];
-            if (expires != nil) {
-                [d setObject:expires forKey:@"expiresDate"];
-            }
-            [cookies2 setObject:d forKey:c.name];
-        }
         resolve(cookies);
     // }
 }
