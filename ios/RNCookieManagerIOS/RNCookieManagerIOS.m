@@ -168,7 +168,7 @@ RCT_EXPORT_METHOD(
     resolver:(RCTPromiseResolveBlock)resolve
     rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [self deleteBinaryCookiesAndWebsiteData];
+    // [self deleteBinaryCookiesAndWebsiteData];
 
     if (useWebKit) {
         if (@available(iOS 11.0, *)) {
