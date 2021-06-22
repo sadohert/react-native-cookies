@@ -168,6 +168,7 @@ RCT_EXPORT_METHOD(
     resolver:(RCTPromiseResolveBlock)resolve
     rejecter:(RCTPromiseRejectBlock)reject)
 {
+    NSLog(@"BOFA_Debug: clearAll - should not see deleteBinaryCookiesAndWebsiteData");
     // [self deleteBinaryCookiesAndWebsiteData];
 
     if (useWebKit) {
@@ -248,14 +249,8 @@ RCT_EXPORT_METHOD(
 }
 
 -(void) deleteBinaryCookiesAndWebsiteData {
-    NSString *libraryPath = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES)[0];
-    NSString *cookiesPath = [libraryPath stringByAppendingString:@"/Cookies/Cookies.binarycookies"];
-    NSString *dataPath = [libraryPath stringByAppendingString:@"/WebKit/WebsiteData"];
+    NSLog(@"BOFA_Debug: We shouldn't see this - deleteBinaryCookiesAndWebsiteData");
     
-    NSError *error;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    [fileManager removeItemAtPath:cookiesPath error:&error];
-    [fileManager removeItemAtPath:dataPath error:&error];
 }
 
 @end
