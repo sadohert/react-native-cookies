@@ -168,9 +168,6 @@ RCT_EXPORT_METHOD(
     resolver:(RCTPromiseResolveBlock)resolve
     rejecter:(RCTPromiseRejectBlock)reject)
 {
-    NSLog(@"BOFA_Debug: clearAll - should not see deleteBinaryCookiesAndWebsiteData");
-    // [self deleteBinaryCookiesAndWebsiteData];
-
     if (useWebKit) {
         if (@available(iOS 11.0, *)) {
             dispatch_async(dispatch_get_main_queue(), ^(){
@@ -246,11 +243,6 @@ RCT_EXPORT_METHOD(
     [cookieData setObject:cookie.domain forKey:@"domain"];
     [cookieData setObject:cookie.path forKey:@"path"];
     return cookieData;
-}
-
--(void) deleteBinaryCookiesAndWebsiteData {
-    NSLog(@"BOFA_Debug: We shouldn't see this - deleteBinaryCookiesAndWebsiteData");
-    
 }
 
 @end
