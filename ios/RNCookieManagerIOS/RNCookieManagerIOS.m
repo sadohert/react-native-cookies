@@ -115,7 +115,29 @@ RCT_EXPORT_METHOD(
 {
     if (useWebKit) {
         if (@available(iOS 11.0, *)) {
+            // FIRST OF ALL CHECK THAT WE HAVE SOMETHING HERE BEFORE DISPATCH CALL ON MAIN THREAD
+            {
+                NSArray<NSHTTPCookie *> *nsCookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
+                NSLog(@"BOFA_Debug:VH:NS:V1 size:(%lu)", (unsigned long)[nsCookies count]);
+                int i = 0;
+                for (NSHTTPCookie *currentCookie in nsCookies) {
+                        i++;
+                        NSLog(@"BOFA_Debug:VH:NS:V1(%d) %@ / %@ ", i, currentCookie.value, currentCookie.name);
+                }
+            }
+                //-------------------------------------------------------------------------------------------
             dispatch_async(dispatch_get_main_queue(), ^(){
+                // SECOND CHECK THAT WE HAVE SOMETHING HERE BEFORE ASK WKWebView, BECAUSE FINAL RESPONSE WILL BE IN BLOCK
+                {
+                    NSArray<NSHTTPCookie *> *nsCookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
+                    NSLog(@"BOFA_Debug:VH:NS:V2 size:(%lu)", (unsigned long)[nsCookies count]);
+                    int i = 0;
+                    for (NSHTTPCookie *currentCookie in nsCookies) {
+                            i++;
+                            NSLog(@"BOFA_Debug:VH:NS:V2: (%d) %@ / %@ ", i, currentCookie.value, currentCookie.name);
+                    }
+                }
+                //-------------------------------------------------------------------------------------------
                 NSString *topLevelDomain = url.host;
 
                 if (isEmpty(topLevelDomain)) {
@@ -125,11 +147,28 @@ RCT_EXPORT_METHOD(
 
                 WKHTTPCookieStore *cookieStore = [[WKWebsiteDataStore defaultDataStore] httpCookieStore];
                 [cookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *allCookies) {
+                    // Print WK
+                    NSLog(@"BOFA_Debug:VH:WK size:(%lu)", (unsigned long)[allCookies count]);
+                    int i = 0;
+                    for (NSHTTPCookie *currentCookie in allCookies) {
+                        i++;
+                        NSLog(@"BOFA_Debug:VH:WK:(%d) %@ / %@ ", i, currentCookie.value, currentCookie.name);
+                    }
+                    // Print NS
+                    NSArray<NSHTTPCookie *> *nsCookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
+                    NSLog(@"BOFA_Debug:VH:NS size:(%lu)", (unsigned long)[nsCookies count]);
+                    i = 0;
+                    for (NSHTTPCookie *currentCookie in nsCookies) {
+                            i++;
+                            NSLog(@"BOFA_Debug:VH:NS:(%d) %@ / %@ ", i, currentCookie.value, currentCookie.name);
+                    }
                     NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
                     for (NSHTTPCookie *cookie in allCookies) {
                         if ([topLevelDomain containsString:cookie.domain] ||
                             [cookie.domain isEqualToString: topLevelDomain]) {
                             [cookies setObject:[self createCookieData:cookie] forKey:cookie.name];
+                            NSLog(@"BOFA_Debug: CookieManager.get (Webkit) value/name: %@ / %@ ", currentCookie.value, currentCookie.name);
+                            
                         }
                     }
                     resolve(cookies);
