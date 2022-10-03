@@ -167,7 +167,7 @@ RCT_EXPORT_METHOD(
                         if ([topLevelDomain containsString:cookie.domain] ||
                             [cookie.domain isEqualToString: topLevelDomain]) {
                             [cookies setObject:[self createCookieData:cookie] forKey:cookie.name];
-                            NSLog(@"BOFA_Debug: CookieManager.get (Webkit) value/name: %@ / %@ ", currentCookie.value, currentCookie.name);
+                            NSLog(@"BOFA_Debug: CookieManager.get (Webkit) value/name: %@ / %@ ", cookie.value, cookie.name);
                             
                         }
                     }
@@ -181,6 +181,7 @@ RCT_EXPORT_METHOD(
         NSMutableDictionary *cookies = [NSMutableDictionary dictionary];
         for (NSHTTPCookie *cookie in [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url]) {
             [cookies setObject:[self createCookieData:cookie] forKey:cookie.name];
+            NSLog(@"BOFA_Debug: CookieManager.get (non-Webkit) value/name/domain/path: %@ / %@ / %@ / %@", cookie.value, cookie.name, cookie.domain, cookie.path);
         }
         resolve(cookies);
     }
